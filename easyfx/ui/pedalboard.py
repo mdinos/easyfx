@@ -1,10 +1,15 @@
-from kivy.uix.gridlayout import GridLayout
 from easyfx.ui.effectcontainer import EffectContainer
+from kivy.graphics import Color, Rectangle
+from kivy.uix.gridlayout import GridLayout
 
 class PedalBoard(GridLayout):
 
     def __init__(self, controller, gui, **kwargs):
         super(PedalBoard, self).__init__(**kwargs)
+        with self.canvas.before:
+            Color(0.33, 0.43, 0.48, 1)
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+        self.bind(size=self._update_rect, pos=self._update_rect)
         self.cols = 4
         self.rows = 2
         self.controller = controller
@@ -42,3 +47,7 @@ class PedalBoard(GridLayout):
         except Exception as e:
             print('turn off effect error')
             self.gui.alert_user('Error', e.args[0])
+
+    def _update_rect(self, instance, value):
+        self.rect.pos = instance.pos
+        self.rect.size = instance.size

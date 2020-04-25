@@ -1,19 +1,18 @@
-from kivy.uix.gridlayout import GridLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.slider import Slider
 
-class EffectContainer(GridLayout): 
+class EffectContainer(BoxLayout):
 
     def __init__(self, effect_name, controller, **kwargs):
         super(EffectContainer, self).__init__(**kwargs)
 
+        self.orientation = 'vertical'
+        self.size_hint = (0.25, 0.5)
+
         self.controller = controller
         self.effect_name = effect_name
         self.get_effect_info()
-        self.cols = 1
-        self.col_default_width = 200
-        self.col_default_height = 300
-        self.row_default_height = 10
         self.sliders = []
         self.slider_display_labels = []
         self.effect_parameter_values = []
