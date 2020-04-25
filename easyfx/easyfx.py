@@ -5,7 +5,9 @@ from easyfx.pdcontroller import PDController
 
 class EasyFX(App):
     def build(self): 
+        self.icon = 'img/efx_icon.png'
+        self.title = 'EFX'
         self.controller = PDController('patches/master.pd', 'patches/patch_meta.json')
         self.controller.clean_up()
         gui = EasyFXLayout(self.controller)
-        return gui 
+        return gui
