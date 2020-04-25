@@ -68,6 +68,3 @@
 #X text 32 83 delay=1;
 #X text 96 17 adc=0;
 #X text 87 190 dac=3;
-#X connect 0 0 2 0;
-#X connect 2 0 1 0;
-#X connect 1 0 3 0;
