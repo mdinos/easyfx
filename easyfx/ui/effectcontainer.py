@@ -1,15 +1,6 @@
-#!/usr/bin/env python
-
-from json import load as load_json
-
-import kivy
-from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.slider import Slider
 from kivy.uix.label import Label
-from kivy.properties  import NumericProperty
-
-from pd_controller import PDController
+from kivy.uix.slider import Slider
 
 class EffectContainer(GridLayout): 
 
@@ -20,11 +11,14 @@ class EffectContainer(GridLayout):
         self.effect_name = effect_name
         self.get_effect_info()
         self.cols = 1
-        self.col_default_width = 250
+        self.col_default_width = 200
+        self.col_default_height = 300
         self.row_default_height = 10
         self.sliders = []
         self.slider_display_labels = []
         self.effect_parameter_values = []
+
+        self.add_widget(Label(text=effect_name, font_size=54, max_lines=1))
 
         for parameter in self.effect_parameters:
             self.effect_parameter_values.append(parameter['default'])
@@ -48,35 +42,7 @@ class EffectContainer(GridLayout):
         self.add_widget(self.slider_display_labels[-1])
 
     def get_effect_info(self):
-        with open('patches/patch_meta.json', 'r') as f:
-            effects_meta = load_json(f)
+        effects_meta = self.controller.load_patch_meta()
         effect_entry = [fx for fx in effects_meta['effects'] if fx['name'] == self.effect_name][0]
         self.effect_port = effect_entry['port']
         self.effect_parameters = effect_entry['parameters']
-
-class MainLayout(GridLayout):
-
-    def __init__(self, controller, **kwargs):
-        super(MainLayout, self).__init__(**kwargs)
-        self.cols = 4
-        self.controller = controller
-    
-    def turn_on_effect(self, effect_name, position):
-        self.add_widget(EffectContainer(effect_name, self.controller))
-        self.controller.enable_effect(effect_name, position)
-        self.controller.create_connections_in_file()
-        self.controller.reload_patch()
-
-class EasyFx(App): 
-    def build(self): 
-        self.controller = PDController('patches/master.pd', 'patches/patch_meta.json')
-        self.controller.clean_up()
-        gui = MainLayout(self.controller)
-        gui.turn_on_effect("Phasor", 1)
-        gui.turn_on_effect("Delay", 2) # case sensitive, must match name value in patches/patch_meta.json
-        return gui 
-
-if __name__ == '__main__':
-    root = EasyFx()
-    root.run()
-    root.controller.clean_up(True)

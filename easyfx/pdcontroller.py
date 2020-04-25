@@ -14,11 +14,13 @@ class PDController():
         self.current_conns = []
 
     """
+        Enable an effect, position starts at 1.
     """
     def enable_effect(self, effect_name: str, position: int):
         try:
-            with open(self.patch_meta_file, 'r') as f:
-                effects_meta = load_json(f)
+            if position < 1:
+                raise(ValueError("Position value must be greater than 1."))
+            effects_meta = self.load_patch_meta()
             effect_entry = [fx for fx in effects_meta['effects'] if fx['name'] == effect_name][0]
             patch_id = effect_entry['patch_identifier']
             
@@ -35,6 +37,27 @@ class PDController():
                 del(self.current_conns[position-1])
                 self.current_conns.insert(position-1, new_conn_1)
                 self.current_conns.insert(position, new_conn_2)
+
+        except Exception as e:
+            print(e)
+            raise(e)
+
+    def disable_effect(self, effect_name: str):
+        try:
+            effects_meta = self.load_patch_meta()
+            effect_entry = [fx for fx in effects_meta['effects'] if fx['name'] == effect_name][0]
+            patch_id = effect_entry['patch_identifier']
+
+            connectors = [(i, conn) for i, conn in enumerate(self.current_conns) if patch_id in conn]
+            if len(connectors) != 2:
+                raise(Exception("There is an error with discovering current enabled effects, please restart the program."))
+            for i in range(2):
+                del(self.current_conns[connectors[0][0]])
+
+            new_connector = (connectors[0][1][0], connectors[1][1][1])
+            insert_position = connectors[0][0]
+
+            self.current_conns.insert(insert_position, new_connector)
 
         except Exception as e:
             print(e)
@@ -126,6 +149,11 @@ class PDController():
             print(e)
             raise(e)
 
+    def load_patch_meta(self):
+        with open(self.patch_meta_file, 'r') as f:
+            effects_meta = load_json(f)
+        return effects_meta
+
     """
         Pushes a generic message up to PD via pdsend
     """
@@ -137,3 +165,4 @@ class PDController():
         except Exception as e:
             print(e)
             raise(e)
+        
