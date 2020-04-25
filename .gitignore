@@ -2,3 +2,4 @@ __pycache__/
 pure-data/
 patches/backups/*
 !patches/backups/original.pd
+.DS_Store
