@@ -88,5 +88,6 @@ class EasyFXLayout(GridLayout):
     
     def alert_user(self, message, title='Error'):
         content = Button(text=str(message))
-        popup = Popup(title=title, size=(200, 200), content=content)
+        popup = Popup(title=title, size_hint=(0.4, 0.4), content=content)
         content.bind(on_press=popup.dismiss)
+        popup.open()

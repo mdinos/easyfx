@@ -12,16 +12,19 @@ class FXList(GridLayout):
             Color(0.78, 0.08, 0.16, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
-
+        
+        self.row_force_default = True
+        self.row_default_height = 50
         self.cols = 1
         self.padding = 10
+        self.spacing = 10
         self.controller = controller
         self.pedal_board = pedal_board
         self.effect_names = self.get_effect_names()
 
         self.effect_list = []
 
-        self.add_widget(Label(text='FXList'))
+        self.add_widget(Label(text='FXList', size=(3,3)))
 
         for name in self.effect_names:
             self.effect_list.append(EffectListItem(name, self.pedal_board))

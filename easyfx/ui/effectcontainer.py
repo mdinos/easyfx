@@ -1,23 +1,29 @@
-from kivy.uix.boxlayout import BoxLayout
+from easyfx.pdcontroller import PDController
+from kivy.graphics import Color, Rectangle
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.slider import Slider
 
-class EffectContainer(BoxLayout):
+class EffectContainer(GridLayout): 
 
-    def __init__(self, effect_name, controller, **kwargs):
+    def __init__(self, effect_name: str, controller: PDController, **kwargs):
         super(EffectContainer, self).__init__(**kwargs)
-
-        self.orientation = 'vertical'
-        self.size_hint = (0.25, 0.5)
+        with self.canvas.before:
+            Color(0.15, 0.8, 0.48, 1)
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+        self.bind(size=self._update_rect, pos=self._update_rect)
 
         self.controller = controller
         self.effect_name = effect_name
-        self.get_effect_info()
+        self.effect_port, self.effect_parameters = self.get_effect_info()
         self.sliders = []
         self.slider_display_labels = []
         self.effect_parameter_values = []
+        self.cols = 1
+        self.row_force_default = True
+        self.row_default_height = 45
 
-        self.add_widget(Label(text=effect_name, font_size=54, max_lines=1))
+        self.add_widget(Label(text="[b]{}[/b]".format(effect_name), font_size=44, max_lines=1, markup=True, padding_y=10))
 
         for parameter in self.effect_parameters:
             self.effect_parameter_values.append(parameter['default'])
@@ -47,5 +53,8 @@ class EffectContainer(BoxLayout):
     def get_effect_info(self):
         effects_meta = self.controller.load_patch_meta()
         effect_entry = [fx for fx in effects_meta['effects'] if fx['name'] == self.effect_name][0]
-        self.effect_port = effect_entry['port']
-        self.effect_parameters = effect_entry['parameters']
+        return effect_entry['port'], effect_entry['parameters']
+
+    def _update_rect(self, instance, value):
+        self.rect.pos = instance.pos
+        self.rect.size = instance.size
