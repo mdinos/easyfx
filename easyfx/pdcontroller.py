@@ -50,13 +50,12 @@ class PDController():
 
             connectors = [(i, conn) for i, conn in enumerate(self.current_conns) if patch_id in conn]
             if len(connectors) != 2:
-                raise(Exception("There is an error with discovering current enabled effects, please restart the program."))
+                raise(Exception("There is an error with discovering current enabled effects, please restart the program - this may have happened due to a DSP Loop, i.e. an effect was initiated multiple times somehow."))
             for i in range(2):
                 del(self.current_conns[connectors[0][0]])
 
             new_connector = (connectors[0][1][0], connectors[1][1][1])
             insert_position = connectors[0][0]
-
             self.current_conns.insert(insert_position, new_connector)
 
         except Exception as e:
