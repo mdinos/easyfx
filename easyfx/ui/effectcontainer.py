@@ -40,6 +40,10 @@ class EffectContainer(BoxLayout):
         self.add_widget(Label(text='{}: '.format(name)))
         self.add_widget(self.slider_display_labels[-1])
 
+    def load_parameter_values(self, new_values: list):
+        for i, slider in enumerate(self.sliders):
+            slider.value = new_values[i]
+
     def get_effect_info(self):
         effects_meta = self.controller.load_patch_meta()
         effect_entry = [fx for fx in effects_meta['effects'] if fx['name'] == self.effect_name][0]

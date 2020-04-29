@@ -45,8 +45,11 @@ class PedalBoard(GridLayout):
             self.controller.create_connections_in_file()
             self.controller.reload_patch()
         except Exception as e:
-            print('turn off effect error')
-            self.gui.alert_user('Error', e.args[0])
+            self.gui.alert_user(e)
+
+    def load_parameters(self, effect_name: str, parameters: list):
+        pedal = [pedal for pedal in self.pedals if pedal.effect_name == effect_name][0]
+        pedal.load_parameter_values(parameters)
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos

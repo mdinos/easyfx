@@ -14,10 +14,10 @@ class EffectListItem(BoxLayout):
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 
-        checkbox = CheckBox()
-        checkbox.color = (255, 231, 90, 1)
-        checkbox.bind(active=self.toggle_effect)
-        self.add_widget(checkbox)
+        self.checkbox = CheckBox()
+        self.checkbox.color = (255, 231, 90, 1)
+        self.checkbox.bind(active=self.toggle_effect)
+        self.add_widget(self.checkbox)
         self.add_widget(Label(text=name))
 
     def toggle_effect(self, checkbox, value):
