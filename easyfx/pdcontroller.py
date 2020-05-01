@@ -4,8 +4,22 @@ import psutil
 import datetime
 
 class PDController():
+    """This class is a controller responsible for communicating with pure data
 
+    Attributes:
+        patch_file_name: The file location of the master patch file
+        patch_meta_file: The file location of the master patch metadata file
+        adc_id: The ID in the master patch file which the ADC object is
+        dac_id: The ID in the master patch file which the DAC object is
+        current_conns: The list of current connections between pedals, as a list of tuples
+    """
     def __init__(self, patch_file_name: str, patch_meta_file: str):
+        """Inits PDController, backs up the current patch file, and initiates attributes
+
+        Args:
+            patch_file_name: The file location of the master patch file
+            patch_meta_file: The file location of the master patch metadata file
+        """
         self.patch_file_name = patch_file_name
         self.patch_meta_file = patch_meta_file
         self.backup_patch()
@@ -13,10 +27,17 @@ class PDController():
         self.dac_id = 3
         self.current_conns = []
 
-    """
-        Enable an effect, position starts at 1.
-    """
     def enable_effect(self, effect_name: str, position: int):
+        """Insert an effect into the list of current connections, at a given position.
+
+        In order to activate the effect after using this method, we still need to use
+        the "rewrite_patch_file" and "reload_patch" methods.
+
+        Args:
+            effect_name: The name of the effect to be enabled (must match name exactly in p
+                atch meta file)
+            position: The position in the pedal chain to be placed, starts at 1
+        """
         try:
             if position < 1:
                 raise(ValueError("Position value must be greater than 1."))
@@ -43,6 +64,15 @@ class PDController():
             raise(e)
 
     def disable_effect(self, effect_name: str):
+        """Remove an effect from the list of current connections.
+
+        Like enable_effect, we still need to use "rewrite_patch_file" and "reload_patch"
+        in order to have the desired effect.
+
+        Args:
+            effect_name: The name of the effect to be disabled (must match name exactly in
+                patch meta file)
+        """
         try:
             effects_meta = self.load_patch_meta()
             effect_entry = [fx for fx in effects_meta['effects'] if fx['name'] == effect_name][0]
@@ -62,53 +92,38 @@ class PDController():
             print(e)
             raise(e)
 
-    def create_connections_in_file(self):
+    def rewrite_patch_file(self, create_new_connections: bool):
+        """Create the connections listed in self.current_conns attribute in the patch file.
+
+        In order to load this new file, "reload_patch" method must still be called.
+        """
         try: 
             with open(self.patch_file_name, "r") as f:
                 file_lines = f.readlines()
+            # Find and remove all connection lines after the dac object
             dac_idx = [i for i, line in enumerate(file_lines) if ("dac~" in line)][0]
             current_connectors = [dac_idx + i for i, line in enumerate(file_lines[dac_idx:len(file_lines)]) if ("#X connect" in line)]
             file_lines = [line for i, line in enumerate(file_lines) if i not in current_connectors]
 
-            connector_strs = []
-            for conn in self.current_conns:
-                conn_str = "#X connect {} 0 {} 0;\n".format(conn[0], conn[1])
-                connector_strs.append(conn_str)
-            
-            file_lines.extend(connector_strs)
+            # Rewrite connection lines with respect to class state (self.current_conns)
+            if create_new_connections:
+                connector_strs = []
+                for conn in self.current_conns:
+                    conn_str = f'#X connect {conn[0]} 0 {conn[1]} 0;\n'
+                    connector_strs.append(conn_str)
+                file_lines.extend(connector_strs)
 
+            # Write to new file, and replace the old one.
             with open(self.patch_file_name + '.bak', 'w') as f:
                 f.writelines(file_lines)
-            
             remove(self.patch_file_name)
             rename(self.patch_file_name + '.bak', self.patch_file_name)
         except Exception as e:
             print(e)
             raise(e)
 
-    def clear_connections_from_file(self):
-        try:
-            with open(self.patch_file_name, "r") as f:
-                file_lines = f.readlines()
-            dac_idx = [i for i, line in enumerate(file_lines) if ("dac~" in line)][0]
-            current_connectors = [dac_idx + i for i, line in enumerate(file_lines[dac_idx:len(file_lines)]) if ("#X connect" in line)]
-            file_lines = [line for i, line in enumerate(file_lines) if i not in current_connectors]
-
-            with open(self.patch_file_name + '.bak', 'w') as f:
-                f.writelines(file_lines)
-
-            self.current_conns = []
-            remove(self.patch_file_name)
-            rename(self.patch_file_name + '.bak', self.patch_file_name)
-
-        except Exception as e:
-            print(e)
-            raise(e)
-
-    """
-        Loads patch file into PD from the patches folder, and starts running pd
-    """
     def reload_patch(self):
+        """Loads patch file into PD from the patches folder, and starts running pd"""
         try:
             self.clean_up()
             print('Attempting to load {} with pure data.'.format(self.patch_file_name))
@@ -117,10 +132,8 @@ class PDController():
             print(e)
             raise(e)
 
-    """
-        Backup the current patch file to the backups folder with a timestamp
-    """
     def backup_patch(self):
+        """Backup the current patch file to the backups folder with a timestamp"""
         ts = int(datetime.datetime.now().timestamp())
         try:
             filename = self.patch_file_name.split('/')[-1]
@@ -129,15 +142,15 @@ class PDController():
             popen("cp {} {}".format(self.patch_file_name, backup_path))
             popen("mv {} {}".format(backup_path + filename, backup_path + backup_filename))
         except Exception as e:
-            print(backup_filename)
-            print(e)
             raise(e)
-    """
-        ensure no existing pd processes
-    """
+
     def clean_up(self, clear_connections=False):
+        """Ensure no existing pure-data processes
+
+        Args:
+            clear_connections: Whether or not the patch file connections should be removed."""
         if clear_connections == True:
-            self.clear_connections_from_file()
+            self.rewrite_patch_file(create_new_connections=False)
         try:
             # Try and kill off any pure-data instances already running.
             processes = {p.pid: p.info for p in psutil.process_iter(['pid', 'name', 'username']) if (p.info['name'] == 'pd' or p.info['name'] == 'Wish')}
@@ -148,16 +161,22 @@ class PDController():
             print(e)
             raise(e)
 
-    def load_patch_meta(self):
-        with open(self.patch_meta_file, 'r') as f:
-            effects_meta = load_json(f)
+    def load_patch_meta(self) -> dict:
+        """Retrieve patch meta file
+
+        Returns:
+            A dict containing a list of effects available in the patch file.
+        """
+        try:
+            with open(self.patch_meta_file, 'r') as f:
+                effects_meta = load_json(f)
+        except Exception as e:
+            raise(e)
         return effects_meta
 
-    """
-        Pushes a generic message up to PD via pdsend
-    """
     @staticmethod
     def send_message(port: int, message: str):
+        """Pushes a generic message up to PD via pdsend"""
         try:
             print('sending {} message to pd on port {}'.format(message, port))
             popen("echo '{}' | ./pure-data/bin/pdsend {} localhost udp".format(message, port))
