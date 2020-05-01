@@ -3,3 +3,4 @@ pure-data/
 patches/backups/*
 !patches/backups/original.pd
 .DS_Store
+.docs/_build
