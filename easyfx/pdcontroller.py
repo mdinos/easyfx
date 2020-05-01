@@ -58,9 +58,7 @@ class PDController():
                 del(self.current_conns[position-1])
                 self.current_conns.insert(position-1, new_conn_1)
                 self.current_conns.insert(position, new_conn_2)
-
         except Exception as e:
-            print(e)
             raise(e)
 
     def disable_effect(self, effect_name: str):
@@ -89,7 +87,6 @@ class PDController():
             self.current_conns.insert(insert_position, new_connector)
 
         except Exception as e:
-            print(e)
             raise(e)
 
     def rewrite_patch_file(self, create_new_connections: bool):
@@ -119,7 +116,6 @@ class PDController():
             remove(self.patch_file_name)
             rename(self.patch_file_name + '.bak', self.patch_file_name)
         except Exception as e:
-            print(e)
             raise(e)
 
     def reload_patch(self):
@@ -129,7 +125,6 @@ class PDController():
             print('Attempting to load {} with pure data.'.format(self.patch_file_name))
             process = popen("./pure-data/bin/pd -nogui -send \"{}\" -open \"{}\" &".format("pd dsp 1", self.patch_file_name))
         except Exception as e:
-            print(e)
             raise(e)
 
     def backup_patch(self):
@@ -158,7 +153,6 @@ class PDController():
                 print('Killing process {}'.format(p))
                 popen('kill {}'.format(p))
         except Exception as e:
-            print(e)
             raise(e)
 
     def load_patch_meta(self) -> dict:
@@ -181,6 +175,5 @@ class PDController():
             print('sending {} message to pd on port {}'.format(message, port))
             popen("echo '{}' | ./pure-data/bin/pdsend {} localhost udp".format(message, port))
         except Exception as e:
-            print(e)
             raise(e)
         
