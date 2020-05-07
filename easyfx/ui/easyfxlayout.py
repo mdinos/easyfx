@@ -189,17 +189,18 @@ class EasyFXLayout(GridLayout):
             )
             self.dialogue.open()
         except Exception as e:
-            print(e)
             self.alert_user('We\'re sorry! Something went wrong!'
                             'Please ensure you entered the correct information.')
 
     def add_patch_meta(self, entry: dict):
-        """Adds the patch metadata to the file."""
+        """Adds the patch metadata to the file.
+        
+        Args:
+            entry: The dictionary entry (generated in ImportDialogueContent) """
         self.dialogue.dismiss()
         try:
             self.controller.add_imported_effect_to_master(entry)
         except Exception as e:
-            print(e)
             self.alert_user('Something went wrong in applying your new patch.')
     
     def alert_user(self, message: str, title='Error'):
