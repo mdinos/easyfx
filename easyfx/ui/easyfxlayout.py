@@ -5,6 +5,7 @@ from easyfx.ui.fxlist import FXList
 from easyfx.ui.toolbarright import ToolbarRight
 from easyfx.ui.toolbarleft import ToolbarLeft
 from easyfx.ui.savedialoguecontent import SaveDialogueContent
+from easyfx.ui.importdialoguecontent import ImportDialogueContent
 from json import dumps as dump_json
 from json import load as load_json
 from kivy.uix.button import Button
@@ -13,6 +14,7 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
 from kivy.uix.scrollview import ScrollView
 from os.path import join as join_path
+from os import popen
 
 class EasyFXLayout(GridLayout):
     """
@@ -106,7 +108,7 @@ class EasyFXLayout(GridLayout):
             self.alert_user('Something went wrong saving your file - please try again!')
 
     def load_dialogue(self):
-        """Opens a FileChooserListView widget to chose a file to load."""
+        """Opens a FileChooserListView widget to choose a file to load."""
         default_directory = join_path(self.root_dir, 'savedata')
         content = FileChooserListView(path=default_directory)
         self.dialogue = Popup(
@@ -158,6 +160,47 @@ class EasyFXLayout(GridLayout):
             self.alert_user(
                 'Something went wrong while loading the file - '
                 'make sure the file was intended for this program!')
+
+    def import_dialogue(self):
+        """Opens a FileChooserListView widget to choose a PD Patch file to import."""
+        content = FileChooserListView(path=self.root_dir)
+        self.dialogue = Popup(
+            content=content,
+            title='Choose a Pure Data patch file to import',
+            size_hint=(0.5, 0.5))
+        self.dialogue.open()
+        content.bind(on_submit=self.get_patch_meta_from_user)
+
+    def get_patch_meta_from_user(self, event, selection, touch):
+        """Second step of importing new user effect; creates input fields to gather patch metadata.
+        
+        Args:
+            event: The type of event recieved, always will be on_submit in current use case (not used)
+            selection: A list of objects selected in the FileChooserListView (first always selected)
+            touch: Mouse coordinates of the event (not used)"""
+        self.dialogue.dismiss()
+        try:
+            file = selection[0]
+            popen(f'cp {file} ./patches')
+            content = ImportDialogueContent(self)
+            self.dialogue = Popup(
+                title='Please enter information regarding the pedal configuration.',
+                content=content
+            )
+            self.dialogue.open()
+        except Exception as e:
+            print(e)
+            self.alert_user('We\'re sorry! Something went wrong!'
+                            'Please ensure you entered the correct information.')
+
+    def add_patch_meta(self, entry: dict):
+        """Adds the patch metadata to the file."""
+        self.dialogue.dismiss()
+        try:
+            self.controller.add_imported_effect_to_master(entry)
+        except Exception as e:
+            print(e)
+            self.alert_user('Something went wrong in applying your new patch.')
     
     def alert_user(self, message: str, title='Error'):
         """Send an alert popup to the user"""

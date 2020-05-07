@@ -10,5 +10,5 @@ class ToolButton(ButtonBehavior, Image):
     def __init__(self, **kwargs):
         """Inits ToolButton class"""
         super(ToolButton, self).__init__(**kwargs)
-        self.size = (64, 64)
+        self.size = (128, 128)
         self.always_release = True

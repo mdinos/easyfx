@@ -22,7 +22,7 @@ class ToolbarLeft(BoxLayout):
 
         # For a custom coloured background for this GUI object
         with self.canvas.before:
-            Color(0.1, 0.1, 0.6, 1)
+            Color(1, 1, 6, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 
@@ -44,11 +44,19 @@ class ToolbarLeft(BoxLayout):
         self.save_button.bind(on_press=self._do_save)
         self.add_widget(self.save_button)
 
+        self.import_button = ToolButton(source='img/import_icon.png')
+        self.import_button.bind(on_press=self._do_import)
+        self.add_widget(self.import_button)
+
     def _do_save(self, instance):
         self.gui.save_dialogue()
 
     def _do_load(self, instance):
         self.gui.load_dialogue()
+
+    def _do_import(self, instance):
+        print('got it')
+        self.gui.import_dialogue()
 
     def _update_rect(self, instance, value):
         """Private method for checking user input and triggering the save if input is OK."""

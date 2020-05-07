@@ -2,6 +2,7 @@
 from easyfx.ui.effectlistitem import EffectListItem
 from easyfx.ui.pedalboard import PedalBoard
 from easyfx.pdcontroller import PDController
+from json import JSONDecodeError
 from kivy.graphics import Color, Rectangle
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
@@ -26,7 +27,7 @@ class FXList(GridLayout):
 
         # For a custom coloured background for this GUI object
         with self.canvas.before:
-            Color(0.78, 0.08, 0.16, 1)
+            Color(0.05, 0.4, 1, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
         
