@@ -23,7 +23,7 @@ class EffectListItem(BoxLayout):
 
         # For a custom coloured background for this GUI object
         with self.canvas.before:
-            Color(0.55, 0.08, 0.16, 1)
+            Color(0.05, 0.6, 1, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 

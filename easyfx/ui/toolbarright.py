@@ -5,7 +5,7 @@ from kivy.uix.boxlayout import BoxLayout
 class ToolbarRight(BoxLayout):
     """Class representing the top RHS toolbar for the application
 
-    Currently placeholder section.
+    Currently placeholder section, important for keeping format.
     """
 
     def __init__(self, **kwargs):
@@ -14,7 +14,7 @@ class ToolbarRight(BoxLayout):
 
         # For a custom coloured background for this GUI object
         with self.canvas.before:
-            Color(0.1, 0.6, 0.1, 1)
+            Color(0, 0, 0, 1)
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 
