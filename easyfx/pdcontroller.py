@@ -173,7 +173,7 @@ class PDController():
         """Loads patch file into PD from the patches folder, and starts running pd"""
         try:
             self.clean_up()
-            process = popen("./pure-data/bin/pd -send \"{}\" -open \"{}\" &".format("pd dsp 1", self.patch_file_name))
+            process = popen("./pure-data/bin/pd -nogui -send \"{}\" -open \"{}\" &".format("pd dsp 1", self.patch_file_name))
         except Exception as e:
             raise(e)
 
