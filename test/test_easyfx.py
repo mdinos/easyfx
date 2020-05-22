@@ -23,9 +23,6 @@ class TestEasyFXApp(TestCase):
     def test_returns_gui(self):
         self.assertIsInstance(self.gui, EasyFXLayout)
 
-    def test_creates_save_folder(self):
-        os.path.exists.assert_called_with()
-
 
     
 
