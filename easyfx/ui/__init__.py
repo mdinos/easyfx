@@ -16,7 +16,7 @@ __all__ = [
     'EffectListItem',
     'FXList',
     'SaveDialogueContent',
-    'ImportDialogueContent'
+    'ImportDialogueContent',
     'ToolbarLeft',
     'ToolbarRight',
     'ToolButton'
