@@ -3,3 +3,5 @@
 #X obj 51 189 dac~;
 #X obj 10 64 delay001;
 #X obj 80 64 phasor001;
+#X obj 134 64 Chorus;
+#X obj 134 64 fuzz;

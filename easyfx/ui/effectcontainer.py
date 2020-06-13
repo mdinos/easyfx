@@ -73,7 +73,9 @@ class EffectContainer(GridLayout):
         Returns:
             Current parameter values joined with ';'."""
         parameters = ';'.join(str(x) for x in self.effect_parameter_values)
-        self.controller.send_message(self.effect_port, parameters)
+        for i, value in enumerate(self.effect_parameter_values):
+            message = f'{i} {value};'
+            self.controller.send_message(self.effect_port, message)
         return parameters
 
     def load_parameter_values(self, new_values: list):
