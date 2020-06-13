@@ -62,21 +62,17 @@ class EffectContainer(GridLayout):
   
         # Bind slider functionality
         for i, slider in enumerate(self.sliders):
-            slider.bind(value=lambda slider, tmp_val=slider.value, tmp_id=i: self._update_parameter_value(slider, tmp_val, tmp_id))
+            slider.bind(value=lambda slider, tmp_val=slider.value, fx_id=i: self._update_parameter_value(slider, tmp_val, fx_id))
 
         # Send current effect parameter values to pure data
-        self.send_all_to_pd()
+        for i in range(0, len(self.effect_parameter_values)):
+            self.send_param_to_pd(i)
 
-    def send_all_to_pd(self) -> str:
-        """Send current parameter values to pure data
-
-        Returns:
-            Current parameter values joined with ';'."""
-        parameters = ';'.join(str(x) for x in self.effect_parameter_values)
-        for i, value in enumerate(self.effect_parameter_values):
-            message = f'{i} {value};'
-            self.controller.send_message(self.effect_port, message)
-        return parameters
+    def send_param_to_pd(self, fx_id: int):
+        """Send current parameter values to pure data"""
+        value = self.effect_parameter_values[fx_id]
+        message = f'{fx_id} {value}'
+        self.controller.send_message(self.effect_port, message)
 
     def load_parameter_values(self, new_values: list):
         """Public function for loading pedal parameter values from a saved file.
@@ -152,11 +148,11 @@ class EffectContainer(GridLayout):
         """
         self.effect_parameter_values[fx_id] = value
         try:
-            parameters = self.send_all_to_pd()
-        except Exception as e:
+            self.send_param_to_pd(fx_id)
+        except Exception:
             self.pedal_board.gui.alert_user('Issue sending pedal parameters to pure-data.')
         for i, value in enumerate(self.slider_display_labels):
-            value.text = parameters.split(';')[i]
+            value.text = str(self.effect_parameter_values[i])
 
     def _update_rect(self, instance, value):
         """Update the shape of the background of this object when the view size changes."""
